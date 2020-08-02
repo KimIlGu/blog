@@ -19,8 +19,8 @@ public class ArticleService extends Service {
 		articleDao = new ArticleDao(dbConn);
 	}
 	
-	public int write(int cateItemId, int loginedMemberId, String title, String body) {
-		return articleDao.write(cateItemId, loginedMemberId, title, body);
+	public int write(int cateItemId, int memberId, String title, String body) {
+		return articleDao.write(cateItemId, memberId, title, body);
 	}
 
 	public Article getForPrintArticle(int id, int actorId) {

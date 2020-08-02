@@ -25,5 +25,4 @@ public class CateItem extends Dto {
 		return "CateItem [name=" + name + ", getId()=" + getId() + ", getRegDate()=" + getRegDate()
 				+ ", getUpdateDate()=" + getUpdateDate() + ", getExtra()=" + getExtra() + "]";
 	}
-
 }

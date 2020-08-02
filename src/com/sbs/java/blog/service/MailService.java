@@ -21,4 +21,8 @@ public class MailService {
 		int rs = Util.sendMail(mailId, mailPw, from, fromName, to, title, body);
 		System.out.println("rs : " + rs);
 	}
+
+	public void sendAuth(String to, String title, String body, String authCode) {
+		Util.sendMailAuth(mailId, mailPw, from, fromName, to, title, body, authCode);
+	}
 }

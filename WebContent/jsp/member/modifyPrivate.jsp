@@ -31,8 +31,7 @@
 	<form action="doModifyPrivate" method="POST" class="form1"
 		onsubmit="ModifyPrivateForm__submit(this); return false;">
 		<input type="hidden" name="authCode" value="${param.authCode}" />
-		<input type="hidden"
-			name="loginPwReal" />
+		<input type="hidden" name="loginPwReal" />
 		<div class="form-row">
 			<div class="label">새 로그인 비번</div>
 			<div class="input">
@@ -51,6 +50,16 @@
 				<input type="submit" value="전송" /> <a href="../home/main">취소</a>
 			</div>
 		</div>
+		<div>내 계정
+			<div>닉네임 변경</div>
+			<div>소개</div>
+		</div>
+		
+		<div>보안
+			<div>비밀번호 재설정</div>
+			<div>이메일 변경 : 이메일 변경시에는 이메일 인증후에 로그인 되도록</div>
+		</div>
+		       
 	</form>
 </div>
 

@@ -83,7 +83,7 @@ public class Member extends Dto {
 	@Override
 	public String toString() {
 		return "Member [loginId=" + loginId + ", loginPw=" + loginPw + ", name=" + name
-				+ ", nickname=" + nickname + ", email=" + email + ", getId()=" + getId() + ", getRegDate()="
+				+ ", nickname=" + nickname + ", email=" + email + ", mailAuthStatus=" + mailAuthStatus + ", getId()=" + getId() + ", getRegDate()="
 				+ getRegDate() + ", getExtra()=" + getExtra() + "]";
 	}
 }

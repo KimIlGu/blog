@@ -5,7 +5,6 @@ import java.util.Map;
 public class Article extends Dto {
 	private int cateItemId;
 	private int memberId;
-	private int displayStatus;
 	private String title;
 	private String body;
 	private int hit;
@@ -16,7 +15,6 @@ public class Article extends Dto {
 
 		this.cateItemId = (int) row.get("cateItemId");
 		this.memberId = (int) row.get("memberId");
-		this.displayStatus = (int)row.get("displayStatus");
 		this.title = (String) row.get("title");
 		this.body = (String) row.get("body");
 		this.hit = (int) row.get("hit");
@@ -36,14 +34,6 @@ public class Article extends Dto {
 
 	public void setMemberId(int memberId) {
 		this.memberId = memberId;
-	}
-
-	public int getDisplayStatus() {
-		return displayStatus;
-	}
-
-	public void setDisplayStatus(int displayStatus) {
-		this.displayStatus = displayStatus;
 	}
 
 	public String getTitle() {

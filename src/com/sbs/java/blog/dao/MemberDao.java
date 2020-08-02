@@ -1,6 +1,7 @@
 package com.sbs.java.blog.dao;
 
 import java.sql.Connection;
+import java.util.Map;
 
 import com.sbs.java.blog.dto.Member;
 import com.sbs.java.blog.util.DBUtil;
@@ -14,129 +15,155 @@ public class MemberDao extends Dao {
 		this.dbConn = dbConn;
 	}
 	
-	public Member getMemberById(int id) {
-		System.out.println("getMemberById()");
-		SecSql secSql = SecSql.from("SELECT *");
-		secSql.append("FROM `member`");
-		secSql.append("WHERE id = ?", id);
-		System.out.println("sql : " + secSql);
-		
-		Member member = new Member(DBUtil.selectRow(dbConn, secSql));
-		System.out.println("member : " + member);
-		
-		return member; 
-	}
-	
 	public boolean isJoinableLoginId(String loginId) {
 		System.out.println("isJoinableLoginId()");
-		SecSql secSql = SecSql.from("SELECT COUNT(*) AS cnt");
-		secSql.append("FROM `member`");
-		secSql.append("WHERE loginId = ?", loginId);
-		System.out.println("sql : " + secSql);
+		SecSql sql = SecSql.from("SELECT COUNT(*) AS cnt");
+		sql.append("FROM `member`");
+		sql.append("WHERE loginId = ?", loginId);
+		
+		System.out.println("sql : " + sql);
 
-		return DBUtil.selectRowIntValue(dbConn, secSql) == 0;
+		return DBUtil.selectRowIntValue(dbConn, sql) == 0;
 	}
 
 	public boolean isJoinableNickname(String nickname) {
 		System.out.println("isJoinableNickname()");
-		SecSql secSql = SecSql.from("SELECT COUNT(*) AS cnt");
-		secSql.append("FROM `member`");
-		secSql.append("WHERE nickname = ?", nickname);
-		System.out.println("sql : " + secSql);
+		SecSql sql = SecSql.from("SELECT COUNT(*) AS cnt");
+		sql.append("FROM `member`");
+		sql.append("WHERE nickname = ?", nickname);
 
-		return DBUtil.selectRowIntValue(dbConn, secSql) == 0;
+		System.out.println("sql : " + sql);
+
+		return DBUtil.selectRowIntValue(dbConn, sql) == 0;
 	}
 	
 	public boolean isJoinableEmail(String email) {
 		System.out.println("isJoinableEmail()");
-		SecSql secSql = SecSql.from("SELECT COUNT(*) AS cnt");
-		secSql.append("FROM `member`");
-		secSql.append("WHERE email = ?", email);
-		System.out.println("sql : " + secSql);
+		SecSql sql = SecSql.from("SELECT COUNT(*) AS cnt");
+		sql.append("FROM `member`");
+		sql.append("WHERE email = ?", email);
+		
+		System.out.println("sql : " + sql);
 
-		return DBUtil.selectRowIntValue(dbConn, secSql) == 0;
+		return DBUtil.selectRowIntValue(dbConn, sql) == 0;
 	}
 	
 	public int join(String loginId, String loginPw, String name, String nickname, String email) {
 		System.out.println("join()");
-		SecSql secSql = new SecSql();
-
-		secSql.append("INSERT INTO member ");
-		secSql.append("SET regDate = NOW() ");
-		secSql.append(", updateDate = NOW()");
-		secSql.append(", loginId = ? ", loginId);
-		secSql.append(", loginPw = ? ", loginPw);
-		secSql.append(", name = ? ", name);
-		secSql.append(", nickname = ? ", nickname);
-		secSql.append(", email = ?", email);
-		System.out.println("sql : " + secSql);
+		SecSql sql = SecSql.from("INSERT INTO member");
+		sql.append("SET regDate = NOW()");
+		sql.append(", updateDate = NOW()");
+		sql.append(", loginId = ?", loginId);
+		sql.append(", loginPw = ?", loginPw);
+		sql.append(", name = ?", name);
+		sql.append(", nickname = ?", nickname);
+		sql.append(", email = ?", email);
+		sql.append(", mailAuthStatus = 0");
 		
-		return DBUtil.insert(dbConn, secSql);
+		System.out.println("sql : " + sql);
+		
+		return DBUtil.insert(dbConn, sql);
 	}
-
-	public int getMemberIdByLoginIdAndLoginPw(String loginId, String loginPw) {
-		System.out.println("getMemberIdByLoginIdAndLoginPw()");
+	
+	public void mailAuth(int actorId, String email) {
+		SecSql sql = SecSql.from("UPDATE member");
+		sql.append("SET updateDate = NOW()");
+		sql.append(", mailAuthStatus = ?", 1);
+		sql.append("WHERE id = ?", actorId);
+		sql.append("AND email = ?", email);
 		
-		SecSql secSql = SecSql.from("SELECT id");
-		secSql.append("FROM `member`");
-		secSql.append("WHERE loginId = ?", loginId);
-		secSql.append("AND loginPw = ?", loginPw);
-		System.out.println("sql : " + secSql);
+		DBUtil.update(dbConn, sql);
+	}
+	
+	public Member getMemberById(int id) {
+		System.out.println("getMemberById()");
+		SecSql sql = SecSql.from("SELECT *");
+		sql.append("FROM `member`");
+		sql.append("WHERE id = ?", id);
+		
+		System.out.println("sql : " + sql);
+		
+		Map<String, Object> row = DBUtil.selectRow(dbConn, sql);
+		System.out.println("row : " + row);
+		
+		if (row.isEmpty()) {
+			System.out.println("row.isEmpty() 조건");
+			return null;
+		}
 
-		return DBUtil.selectRowIntValue(dbConn, secSql);
+		return new Member(row);
+	}
+	
+	public Member getMemberByLoginId(String loginId) {
+		System.out.println("getMemberByLoginId()");
+		
+		SecSql sql = SecSql.from("SELECT *");
+		sql.append("FROM `member`");
+		sql.append("WHERE loginId = ?", loginId);
+		
+		Map<String, Object> row = DBUtil.selectRow(dbConn, sql);
+		System.out.println("row : " + row);
+		
+		if (row.isEmpty()) {
+			System.out.println("row.isEmpty() 조건");
+			return null;
+		}
+
+		return new Member(row);
 	}
 	
 	public Member getMemberByNameAndEmail(String name, String email) {
 		System.out.println("getMemberByNameAndEmail()");
 		
-		SecSql secSql = SecSql.from("SELECT * ");
-		secSql.append("FROM `member` ");
-		secSql.append("WHERE name = ? ", name);
-		secSql.append("AND email = ? ", email);
-		System.out.println("sql : " + secSql);
+		SecSql sql = SecSql.from("SELECT * ");
+		sql.append("FROM `member` ");
+		sql.append("WHERE name = ? ", name);
+		sql.append("AND email = ? ", email);
+		System.out.println("sql : " + sql);
 
-		Member member = new Member(DBUtil.selectRow(dbConn, secSql));
-		System.out.println("member : " + member);
+		Map<String, Object> row = DBUtil.selectRow(dbConn, sql);
+		System.out.println("row : " + row);
 		
-		return member;
-	}
+		if (row.isEmpty()) {
+			System.out.println("row.isEmpty() 조건");
+			return null;
+		}
 
-	public Member getMemberByNameAndEmailAndLoginId(String loginId, String name, String email) {
-		System.out.println("getMemberByNameAndEmailAndLoginId()");
-		
-		SecSql secSql = SecSql.from("SELECT *");
-		secSql.append("FROM `member`");
-		secSql.append("WHERE loginId = ?", loginId);
-		secSql.append("AND name = ?", name);
-		secSql.append("AND email = ? ", email);
-		System.out.println("sql : " + secSql);
-		
-		Member member = new Member(DBUtil.selectRow(dbConn, secSql));
-		System.out.println("member : " + member);
-		
-		return member;
+		return new Member(row);
 	}
 	
-	public void updatePwByIdAndUuid(int id, String uuid) {
-		System.out.println("updatePwByIdAndUuid()");
+	public int getMemberIdByLoginIdAndLoginPw(String loginId, String loginPw) {
+		System.out.println("getMemberIdByLoginIdAndLoginPw()");
 		
-		SecSql secSql = new SecSql();
-		secSql.append("UPDATE `member` ");
-		secSql.append("SET loginPw = ? ", uuid);
-		secSql.append("WHERE id = ?", id);
-		System.out.println("sql : " + secSql);
+		SecSql sql = SecSql.from("SELECT id");
+		sql.append("FROM `member`");
+		sql.append("WHERE loginId = ?", loginId);
+		sql.append("AND loginPw = ?", loginPw);
+		System.out.println("sql : " + sql);
 
-		DBUtil.update(dbConn, secSql);
+		return DBUtil.selectRowIntValue(dbConn, sql);
 	}
-
+	
 	public void modify(int actorId, String loginPw) {
 		System.out.println("modify()");
-		SecSql secSql = SecSql.from("UPDATE member");
-		secSql.append("SET updateDate = NOW()");
-		secSql.append(", loginPw = ?", loginPw);
-		secSql.append("WHERE id = ?", actorId);
-		System.out.println("sql : " + secSql);
+		SecSql sql = SecSql.from("UPDATE member");
+		sql.append("SET updateDate = NOW()");
+		sql.append(", loginPw = ?", loginPw);
+		sql.append("WHERE id = ?", actorId);
+		System.out.println("sql : " + sql);
 		
-		DBUtil.update(dbConn, secSql);
+		DBUtil.update(dbConn, sql);
 	}
+	
+//	public void updatePwByIdAndUuid(int id, String uuid) {
+//		System.out.println("updatePwByIdAndUuid()");
+//		
+//		SecSql sql = new SecSql();
+//		sql.append("UPDATE `member` ");
+//		sql.append("SET loginPw = ? ", uuid);
+//		sql.append("WHERE id = ?", id);
+//		System.out.println("sql : " + sql);
+//
+//		DBUtil.update(dbConn, sql);
+//	}
 }

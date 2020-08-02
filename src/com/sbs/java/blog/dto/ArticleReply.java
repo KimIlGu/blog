@@ -40,15 +40,14 @@ public class ArticleReply extends Dto {
 		this.body = body;
 	}
 	
+	public String getBodyForXTemplate() {
+		return body.replaceAll("(?i)script", "<!--REPLACE:script-->");
+	}
+	
 	@Override
 	public String toString() {
 		return "ArticleReply [articleId=" + articleId + ", memberId=" + memberId + ", body=" + body + ", getId()="
 				+ getId() + ", getRegDate()=" + getRegDate() + ", getUpdateDate()=" + getUpdateDate() + ", getExtra()="
 				+ getExtra() + "]";
 	}
-
-	public String getBodyForXTemplate() {
-		return body.replaceAll("(?i)script", "<!--REPLACE:script-->");
-	}
-
 }

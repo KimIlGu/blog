@@ -28,6 +28,26 @@ public class DBUtil {
 		System.out.println("-1");
 		return -1;
 	}
+	
+	public static String selectRowStringValue(Connection dbConn, SecSql secSql) {
+		Map<String, Object> row = selectRow(dbConn, secSql);
+			
+		for (String key : row.keySet()) {
+			System.out.println("key : " + key);
+			System.out.println("row : " + row);
+			return String.valueOf(row.get(key));
+		}
+		return "";
+	}
+
+	public static boolean selectRowBooleanValue(Connection dbConn, SecSql secSql) {
+		Map<String, Object> row = selectRow(dbConn, secSql);
+
+		for (String key : row.keySet()) {
+			return ((int) row.get(key)) == 1;
+		}
+		return false;
+	}
 
 	public static Map<String, Object> selectRow(Connection dbConn, SecSql secSql) {
 		List<Map<String, Object>> rows = selectRows(dbConn, secSql);
@@ -200,24 +220,5 @@ public class DBUtil {
 	public static int delete(Connection dbConn, SecSql secSql) {
 		System.out.println("delete()");
 		return update(dbConn, secSql);
-	}
-
-	
-	public static String selectRowStringValue(Connection dbConn, SecSql secSql) {
-		Map<String, Object> row = selectRow(dbConn, secSql);
-
-		for (String key : row.keySet()) {
-			return (String) row.get(key);
-		}
-		return "";
-	}
-
-	public static boolean selectRowBooleanValue(Connection dbConn, SecSql secSql) {
-		Map<String, Object> row = selectRow(dbConn, secSql);
-
-		for (String key : row.keySet()) {
-			return ((int) row.get(key)) == 1;
-		}
-		return false;
 	}
 }

@@ -49,7 +49,7 @@
 <div class="join-form-box con">
 	<div style="padding: 0 30px; margin-top:50px">
 		<form action="doJoin" method="POST" class="join-form form1"
-		onsubmit="submitJoinForm(this); return false;">
+		onsubmit="JoinForm__submit(this); return false;">
 		<input type="hidden" name="loginPwReal" />
 		
 		<div class="form-row">
@@ -106,12 +106,13 @@
 var JoinForm__validLoginId = '';
 function JoinForm__submit(form) {
 	form.loginId.value = form.loginId.value.trim();
+	
 	if (form.loginId.value.length == 0) {
 		alert('로그인 아이디를 입력해주세요.');
 		form.loginId.focus();
 		return;
 	}
-	if (form.loginId.value != JoinForm__validLoginId) {
+	if (form.loginId.value == JoinForm__validLoginId) {
 		alert('다른 아이디를 입력해주세요.');
 		form.loginId.focus();
 		return;
@@ -156,6 +157,7 @@ function JoinForm__submit(form) {
 	form.loginPwConfirm.value = '';
 	form.submit();
 }
+
 function JoinForm__checkLoginIdDup(input) {
 	var form = input.form;
 	form.loginId.value = form.loginId.value.trim();
@@ -177,6 +179,7 @@ function JoinForm__checkLoginIdDup(input) {
 		}
 	}, 'json');
 }
+var JoinForm__checkLoginIdValid__debounce = _.debounce(JoinForm__checkLoginIdDup, 1000);
 </script>
 
 <%@ include file="/jsp/part/foot.jspf"%>
