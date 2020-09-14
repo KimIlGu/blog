@@ -1,216 +1,198 @@
-<%@ page import="com.sbs.java.blog.util.Util"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>	
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.List"%>
+<%@ page import="com.sbs.java.blog.dto.CateItem"%>
+<%@ page import="com.sbs.java.blog.dto.Member"%>
 
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html lang="ko">
 
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<%@ include file="/jsp/part/head.jspf"%>
-<%@ include file="/jsp/part/toastUiEditor.jspf"%>
+<!-- 구글 폰트 불러오기 -->
+<!-- rotobo(400/900), notosanskr(400/900) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;900&family=Roboto:wght@400;900&display=swap">
+
+<!-- 폰트어썸 불러오기 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/resource/css/home/main.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/resource/css/common.css">
+
+<!-- 제이쿼리 불러오기 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="${pageContext.request.contextPath}/resource/js/home/main.js"></script>
+<script src="${pageContext.request.contextPath}/resource/js/common.js"></script>
+
+<!-- favicon 불러오기 -->
+<link rel="icon" href="/img/favicon.ico">
+
+<title>김일구 블로그</title>
+<script>
+	var loginedMemberId = parseInt("${loginedMemberId}");
+	var isLogined = "${isLogined}" == "true";
+	var loginedMember = null;
+</script>
+
+<script>
+	var param = {};
+</script>
+
+<c:forEach var="pageParameter" items="${param}">
+	<script>
+		param["${pageParameter.key}"] = "${pageParameter.value}";
+	</script>
+</c:forEach>
+
+<script>
+if ( !param.jsAction ) {
+	param.jsAction = '';
+}
+
+var jsActions = param.jsAction.split(',');
+
+for ( var key in jsActions ) {
+	var jsActionFuncName = jsActions[key];
+
+	$(function() {
+		setTimeout(function() {
+			if ( window[jsActionFuncName] ) {
+				window[jsActionFuncName]();
+			}
+			else {
+				console.error("jsAction으로 요청받은, " + jsActionFuncName + " 함수는 존재하지 않아서 실행하지 못했습니다.");
+			}
+		}, 100);
+	});
+}
+</script>
+
+<c:if test="${isLogined}">
+	<script>
+	loginedMember = {};
+	loginedMember["id"] = parseInt("${loginedMember.id}");
+	loginedMember["regDate"] = "${loginedMember.regDate}";
+	loginedMember["loginId"] = "${loginedMember.loginId}";
+	loginedMember["name"] = "${loginedMember.name}";
+	loginedMember["nickname"] = "${loginedMember.nickname}";
+	loginedMember["email"] = "${loginedMember.email}";
+	</script>
+</c:if>
 
 <style>
-	.box-body {
-		padding:0 30px;
-	}
-	
-	.box-body > .detail-group > input {
-		margin-left: 30px;
-	}
-	
-	.reply-box {
-		padding: 0 30px;
-	}	
-	
-	.reply-box-inner {
-		padding: 0 15px;
-	}	
-	
-	.con {
-		max-width:1100px;
-	}
+/* 회원님 환영합니다. 글자 옮겼었음.*/
 </style>
 
-<section class="detail con">
-	<div class="box">
-		
-		<div class="box-body" style="margin-top:50px;">
-		
-			<div class="detail-title" style="margin-top:30px;">
-				<h1 style="color:#434a53; font-size:30px; font-weight: normal; font-family: Avenir,'Lato','나눔바른고딕','NanumBarunGothic','애플 SD 산돌고딕 Neo','Apple SD Gothic Neo','나눔고딕',NanumGothic,'맑은 고딕','Malgun Gothic','돋움',dotum,AppleGothic,sans-serif;">${article.title}</h1>
-			</div>
-			<div style="margin-top:30px; color:#b5b5b5; font-size:15px; font-family: Avenir,'Lato','애플 SD 산돌고딕 Neo','Apple SD Gothic Neo','나눔바른고딕',NanumBarunGothic,'나눔고딕',NanumGothic,'맑은 고딕','Malgun Gothic','돋움',dotum,AppleGothic,sans-serif;">
-				<span><i class="far fa-clock"></i></span>
-				<span>${article.regDate}</span>
-				<span style="margin-left:15px;">|</span>
-				<span style="margin-left:15px;"><i class="fas fa-eye"></i></span>
-				<span>${article.hit}</span>
-			</div>
-			<div class="detail-body">
-				<div class="detail-group">
-					<script type="text/x-template">${article.bodyForXTemplate}</script>
-					<div class="toast-editor toast-editor-viewer"></div>
-				</div>
-			</div>
-			<hr />
-			<div class="detail-items con" style="margin-top:20px; margin-bottom:20px;">
-				<span style="margin-left:0;">작성자 : <span>${article.getExtra().get("writer")}</span></span>
-			</div>
-			<hr />
-			<div style="margin-top: 50px;">
-			<c:if test="${article.extra.deleteAvailable}">
-				<a onclick="if ( confirm('삭제하시겠습니까?') == false ) return false;" href="./doDelete?id=${article.id}">삭제</a>
-			</c:if>	
-			<c:if test="${article.extra.modifyAvailable}">
-				<a href="./modify?id=${article.id}">수정</a>
+</head>
+
+<body>
+	<div class="mobile-top-bar visible-on-sm-down flex">
+		<a href="#" class="btn-toggle-mobile-side-bar flex flex-ai-c"> 
+			<i class="fas fa-bars"></i> 
+			<i class="fas fa-times"></i>
+		</a> 
+		<a href="${pageContext.request.contextPath}/s/home/main" 
+		   class="logo absolute-center absolute-middle flex flex-ai-c"> 
+			<i class="fas fa-font"></i>
+		</a>
+	</div>
+	<div class="mobile-side-bar flex flex-ai-c visible-on-sm-down">
+		<nav class="menu-box-1 flex-grow-1">
+			<ul>
+				<c:if test="${isLogined}">
+					<li><a
+						href="${pageContext.request.contextPath}/s/member/doLogout?redirectUri=${encodedAfterLogoutRedirectUri}"
+						class="block">Logout</a></li>
+					<li><a
+						href="${pageContext.request.contextPath}/s/member/passwordForPrivate"
+						class="block">My Private</a></li>
+				</c:if>
+				
+				<c:if test="${isLogined == false}">
+					<li><a
+						href="${pageContext.request.contextPath}/s/member/login?afterLoginRedirectUri=${encodedAfterLoginRedirectUri}"
+						class="block">Login</a></li>
+					<li><a href="${pageContext.request.contextPath}/s/member/join"
+						class="block">Join</a></li>
+				</c:if>
+				<li><a href="${pageContext.request.contextPath}/s/home/main"
+					class="block">Home</a></li>
+				<li><a
+					href="${pageContext.request.contextPath}/s/article/write"
+					class="block">Write</a></li>
+				<li><a href="#" class="block">Articles</a>
+					<ul>
+						<li><a
+							href="${pageContext.request.contextPath}/s/article/list"
+							class="block">전체</a></li>
+						<c:forEach items="${cateItems}" var="cateItem">
+							<li><a
+								href="${pageContext.request.contextPath}/s/article/list?cateItemId=${cateItem.id}"
+								class="block">${cateItem.name}</a></li>
+						</c:forEach>
+					</ul></li>
+				<li><a href="${pageContext.request.contextPath}/s/home/aboutMe"
+					class="block">AboutMe</a></li>
+				<li><a href="#" class="block">SNS</a>
+					<ul>
+						<li><a href="https://github.com/jhs512" target="_blank" class="block">GITHUB</a></li>
+						<li><a href="https://github.com/jhs512" target="_blank" class="block">FACEBOOK</a></li>
+					</ul>
+				</li>
+			</ul>
+		</nav>
+	</div>
+	<div class="top-bar visible-on-md-up">
+		<div class="con flex flex-jc-sb height-100p">
+			<a href="${pageContext.request.contextPath}/s/home/main" class="logo flex flex-ai-c"> 
+				<i class="fas fa-font"></i>
+			</a>
+			<c:if test="${isLogined}">
+				<div class="flex height-100p flex-ai-c"">${loginedMember.name}님 환영합니다.</div>
+				<c:if test="${loginedMember.extra.isNeedToChangePasswordForTemp}">
+					<div class="flex height-100p flex-ai-c"">
+						현재 임시 비밀번호를 사용하고 있습니다. 비밀번호를 <a style="color:red" href="../member/passwordForPrivate">변경</a>해주세요.
+					</div>
+				</c:if>
 			</c:if>
-			</div>
+			<nav class="menu-box-1">
+				<ul class="flex height-100p">
+					<li><a href="${pageContext.request.contextPath}/s/home/main" class="flex height-100p flex-ai-c">Home</a></li>
+					<li><a href="${pageContext.request.contextPath}/s/article/write" class="flex height-100p flex-ai-c">Write</a></li>
+					<li><a href="${pageContext.request.contextPath}/s/article/list" class="flex height-100p flex-ai-c">Articles </a>
+						<ul>
+							<c:forEach items="${cateItems}" var="cateItem">
+								<li><a
+									href="${pageContext.request.contextPath}/s/article/list?cateItemId=${cateItem.id}"
+									class="block">${cateItem.name}</a></li>
+							</c:forEach>
+						</ul>
+					</li>
+					<li><a href="${pageContext.request.contextPath}/s/home/aboutMe" class="flex height-100p flex-ai-c">About Me</a></li>
+					<li><a href="#" class="flex height-100p flex-ai-c">SNS</a>
+						<ul>
+							<li><a href="https://github.com/KimIlGu" class="block" target="_blank">GITHUB </a></li>
+							<li><a href="https://www.facebook.com/" class="block" target="_blank">FACEBOOK </a></li>
+						</ul>
+					</li>
+					<c:if test="${isLogined}">
+						<li><a
+							href="${pageContext.request.contextPath}/s/member/doLogout?redirectUri=${encodedAfterLogoutRedirectUri}"
+							class="flex height-100p flex-ai-c">Logout</a></li>
+						<li><a
+							href="${pageContext.request.contextPath}/s/member/passwordForPrivate"
+							class="flex height-100p flex-ai-c"">My Private</a></li>
+					</c:if>
+					<c:if test="${isLogined == false}">
+						<li><a
+							href="${pageContext.request.contextPath}/s/member/login?afterLoginRedirectUri=${encodedAfterLoginRedirectUri}"
+							class="flex height-100p flex-ai-c">Login</a></li>
+						<li><a
+							href="${pageContext.request.contextPath}/s/member/join"
+							class="flex height-100p flex-ai-c">Join</a></li>
+					</c:if>
+				</ul>
+			</nav>
 		</div>
 	</div>
-	
-	<div class="reply-box">
-		<div class="reply-header"><h2>댓글</h2></div>
-		
-		<c:if test="${isLogined == false}">
-			<div class="con">
-				<c:set var="loginUri" value="../member/login?afterLoginRedirectUri=${Util.getNewUriAndEncoded(currentUri, 'jsAction', 'WriteReplyForm__focus')}" />
-				<a href="${loginUri}">로그인</a> 후 이용해주세요.
-			</div>
-		</c:if>
-		
-		<c:if test="${isLogined}">
-	
-			<script>
-				var WriteReplyForm__submitDone = false;
-				function WriteReplyForm__focus() {
-					var editor = $('.write-reply-form .toast-editor').data(
-							'data-toast-editor');
-					editor.focus();
-				}
-				function WriteReplyForm__submit(form) {
-					if (WriteReplyForm__submitDone) {
-						alert('처리중입니다.');
-						return;
-					}
-					var editor = $(form).find('.toast-editor')
-							.data('data-toast-editor');
-					var body = editor.getMarkdown();
-					body = body.trim();
-					if (body.length == 0) {
-						alert('내용을 입력해주세요.');
-						editor.focus();
-						return false;
-					}
-					form.body.value = body;
-					form.submit();
-					WriteReplyForm__submitDone = true;
-				}
-				function WriteReplyForm__init() {
-					$('.write-reply-form .cancel').click(
-							function() {
-								var editor = $('.write-reply-form .toast-editor').data(
-										'data-toast-editor');
-								editor.setMarkdown('');
-							});
-				}
-				$(function() {
-					WriteReplyForm__init();
-				});
-			</script>
-		
-			<div class="write-reply-form-box con">
-				<form action="doWriteReply" method="POST" class="write-reply-form form1" onsubmit="WriteReplyForm__submit(this); return false;">
-					<input type="hidden" name="articleId" value="${article.id}"> 
-					
-					<c:set var="redirectUri"
-						value="${Util.getNewUriRemoved(currentUri, 'lastWorkArticleReplyId')}" />
-					<c:set var="redirectUri"
-						value="${Util.getNewUri(redirectUri, 'jsAction', 'WriteReplyList__showDetail')}" />
-					
-					<input type="hidden" name="redirectUri" value="${redirectUri}">
-					<input type="hidden" name="body">
-						
-					<div class="form-row">
-						<div class="input">
-							<script type="text/x-template"></script>
-							<div data-toast-editor-height="300" class="toast-editor"></div>
-						</div>
-					</div>
-					
-					<div class="form-row">
-						<div class="input">
-							<input type="submit" value="작성" />
-							<input class="cancel" type="button" value="취소" />
-						</div>
-					</div>
-				</form>
-			</div>
-		</c:if>
-	
-		<script>
-			function WriteReplyList__showTop() {
-				var top = $('.article-replies-list-box').offset().top;
-				$(window).scrollTop(top);
-			}
-			function WriteReplyList__showDetail() {
-				WriteReplyList__showTop();
-				var $tr = $('.article-replies-list-box > [data-id="'
-						+ param.lastWorkArticleReplyId + '"]');
-				$tr.addClass('high');
-				setTimeout(function() {
-					$tr.removeClass('high');
-				}, 1000);
-			}
-		</script>
-		
-<style>
-.article-replies-list-box>.high {
-	background-color: #dfdfdf;
-}
-.article-replies-list-box>.body-box>div {
-	transition: background-color 1s;
-}
-</style>
-		<h2 class="con">댓글 리스트</h2>
-		<div class="con article-replies-list-box" style="padding:0 30px">
-			<c:forEach items="${articleReplies}" var="articleReply">
-				<div data-id="${articleReply.id}" style="margin-top:30px;" class="body-box">
-					
-					<div><b>${articleReply.getExtra().get("writer")}</b></div>
-					<script type="text/x-template">${articleReply.bodyForXTemplate}</script>
-					<div class="toast-editor toast-editor-viewer"></div>
-					<div>
-						<span style="opacity:0.7;">${articleReply.regDate}</span>
-					</div>
-					<div style="margin-top: 20px;">
-						<c:if test="${articleReply.extra.deleteAvailable}">
-							<c:set var="afterDeleteReplyRedirectUri"
-								value="${Util.getNewUriRemoved(currentUri, 'lastWorkArticleReplyId')}" />
-							<c:set var="afterDeleteReplyRedirectUri"
-								value="${Util.getNewUriAndEncoded(afterDeleteReplyRedirectUri, 'jsAction', 'WriteReplyList__showTop')}" />
-	
-							<c:set var="afterModifyReplyRedirectUri"
-								value="${Util.getNewUriRemoved(currentUri, 'lastWorkArticleReplyId')}" />
-							<c:set var="afterModifyReplyRedirectUri"
-								value="${Util.getNewUriAndEncoded(afterModifyReplyRedirectUri, 'jsAction', 'WriteReplyList__showDetail')}" />
-	
-							<a onclick="if ( confirm('삭제하시겠습니까?') == false ) return false;"
-								href="./doDeleteReply?id=${articleReply.id}&redirectUri=${afterDeleteReplyRedirectUri}">삭제</a>
-						</c:if>
-						
-						<c:if test="${articleReply.extra.modifyAvailable}">
-							<a
-								href="./modifyReply?id=${articleReply.id}&redirectUri=${afterModifyReplyRedirectUri}">수정</a>
-						</c:if>
-					</div>					
-				</div>
-			</c:forEach>
-		</div>
-	</div>
-	<div class="detail-footer con">
-		<button onclick="location.href='list'">이전</button>
-	</div>
-	
-</section>
-
-
-<%@ include file="/jsp/part/foot.jspf"%>
